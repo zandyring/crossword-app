@@ -131,18 +131,9 @@ function solve(slots, cells, width) {
       }
     }
     var indices = findMatchingIndices(len, fixed);
-    // Shuffle first, then stable-sort by score tier (10-point buckets).
-    // This gives full randomness within each quality tier while ensuring
-    // high-quality words are tried before low-quality ones.
+    // Pure shuffle — the curated word list already ensures quality;
+    // the solver needs maximum exploration freedom to find valid fills
     shuffle(indices);
-    var lenScores = scoresByLen[len];
-    if (lenScores) {
-      indices.sort(function(a, b) {
-        var tierA = Math.floor((lenScores[a] || 0) / 10);
-        var tierB = Math.floor((lenScores[b] || 0) / 10);
-        return tierB - tierA;
-      });
-    }
     domains.push(indices);
   }
 
