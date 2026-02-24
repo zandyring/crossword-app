@@ -107,7 +107,7 @@ var Export = {
       '*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\n' +
       'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f0; color: #1a1a1a; }\n' +
       '.header { text-align: center; padding: 16px; }\n' +
-      '.header h1 { font-family: Georgia, serif; margin-bottom: 4px; }\n' +
+      '.header h1 { margin-bottom: 4px; }\n' +
       '.header .author { font-style: italic; color: #666; }\n' +
       '.header .timer { font-size: 14px; color: #888; margin-top: 8px; font-variant-numeric: tabular-nums; }\n' +
       '.controls { text-align: center; margin: 10px 0; }\n' +
@@ -115,7 +115,7 @@ var Export = {
       '.controls button:hover { background: #555; }\n' +
       '.main { display: flex; padding: 20px; gap: 24px; align-items: flex-start; justify-content: center; }\n' +
       '.grid { display: inline-grid; border: 2px solid #333; background: #333; gap: 1px; user-select: none; }\n' +
-      '.cell { position: relative; background: #fff; display: flex; align-items: center; justify-content: center; font-family: Georgia, serif; font-weight: bold; cursor: pointer; text-transform: uppercase; }\n' +
+      '.cell { position: relative; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; text-transform: uppercase; }\n' +
       '.cell.black { background: #1a1a1a; cursor: default; }\n' +
       '.cell.selected { background: #ffda00 !important; }\n' +
       '.cell.active-word:not(.selected) { background: #a7d8ff; }\n' +
@@ -124,13 +124,18 @@ var Export = {
       '.cell.wrong .letter { color: #c00; }\n' +
       '.cell.revealed .letter { color: #06a; }\n' +
       '.clue-panel { flex: 1; min-width: 260px; max-width: 400px; max-height: 80vh; overflow-y: auto; }\n' +
-      '.clue-section h2 { font-family: Georgia, serif; font-size: 16px; padding-bottom: 4px; border-bottom: 2px solid #1a1a1a; margin-bottom: 8px; }\n' +
+      '.clue-section h2 { font-size: 16px; padding-bottom: 4px; border-bottom: 2px solid #1a1a1a; margin-bottom: 8px; }\n' +
       '.clue-section { margin-bottom: 16px; }\n' +
       '.clue { padding: 4px 6px; border-radius: 3px; cursor: pointer; font-size: 14px; line-height: 1.4; }\n' +
       '.clue:hover { background: #eee; }\n' +
       '.clue.active { background: #fff3c4; }\n' +
       '.clue .cn { font-weight: bold; min-width: 24px; display: inline-block; text-align: right; margin-right: 6px; }\n' +
       '@media (max-width: 700px) { .main { flex-direction: column; align-items: center; } .clue-panel { max-width: 100%; max-height: none; } }\n' +
+      '.success-banner { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; }\n' +
+      '.success-banner.visible { display:flex; }\n' +
+      '.success-banner .inner { background:#fff; border-radius:12px; padding:40px 48px; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.3); }\n' +
+      '.success-banner .inner h2 { font-size:28px; margin-bottom:8px; }\n' +
+      '.success-banner .inner p { font-size:18px; color:#555; }\n' +
       '</style>\n</head><body>\n' +
       '<div class="header">\n' +
       '  <h1>' + this._esc(title) + '</h1>\n' +
@@ -148,6 +153,7 @@ var Export = {
       '    <div class="clue-section"><h2>Down</h2><div id="clues-down"></div></div>\n' +
       '  </div>\n' +
       '</div>\n' +
+      '<div class="success-banner" id="success-banner"><div class="inner"><h2>Puzzle Complete!</h2><p id="success-time"></p></div></div>\n' +
       '<script>\n' +
       'var P=' + puzzleJSON + ';\n' +
       'var W=P.width, H=P.height, sel=null, dir="across", letters=[], startTime=Date.now();\n' +
@@ -236,6 +242,7 @@ var Export = {
       '    letters[sel]=e.key.toUpperCase();\n' +
       '    document.getElementById("L"+sel).textContent=letters[sel];\n' +
       '    advance(1);\n' +
+      '    checkComplete();\n' +
       '  }else if(e.key==="Backspace"){\n' +
       '    e.preventDefault();\n' +
       '    if(letters[sel]){letters[sel]="";document.getElementById("L"+sel).textContent="";}\n' +
@@ -297,6 +304,19 @@ var Export = {
       '    cells[i].classList.remove("wrong");\n' +
       '    if(!cells[i].classList.contains("revealed"))cells[i].classList.add("revealed");\n' +
       '  }\n' +
+      '}\n' +
+      '\n' +
+      'var solved=false;\n' +
+      'function checkComplete(){\n' +
+      '  if(solved)return;\n' +
+      '  for(var i=0;i<P.grid.length;i++){\n' +
+      '    if(P.grid[i].black||answers[i]===" ")continue;\n' +
+      '    if(letters[i]!==answers[i])return;\n' +
+      '  }\n' +
+      '  solved=true;\n' +
+      '  var s=Math.floor((Date.now()-startTime)/1000);var m=Math.floor(s/60);s=s%60;\n' +
+      '  document.getElementById("success-time").textContent="Solved in "+m+":"+(s<10?"0":"")+s;\n' +
+      '  document.getElementById("success-banner").classList.add("visible");\n' +
       '}\n' +
       '\n' +
       'renderGrid();\n' +
