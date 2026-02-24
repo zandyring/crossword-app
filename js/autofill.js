@@ -6,7 +6,7 @@ var AutoFill = {
     var code = `
 var cancelled = false;
 var startTime = 0;
-var TIMEOUT = 30000;
+var TIMEOUT = 60000;
 
 // Position index: posIndex[length][position][letter] = Set of word indices
 var wordsByLen = {};   // length -> [words]
@@ -131,17 +131,17 @@ function solve(slots, cells, width) {
       }
     }
     var indices = findMatchingIndices(len, fixed);
-    // Sort by score descending with jitter — prefer common words but
-    // add randomness within similar scores so solver explores varied paths
+    // Shuffle first, then stable-sort by score tier (10-point buckets).
+    // This gives full randomness within each quality tier while ensuring
+    // high-quality words are tried before low-quality ones.
+    shuffle(indices);
     var lenScores = scoresByLen[len];
     if (lenScores) {
       indices.sort(function(a, b) {
-        var sa = (lenScores[a] || 0) + Math.random() * 15;
-        var sb = (lenScores[b] || 0) + Math.random() * 15;
-        return sb - sa;
+        var tierA = Math.floor((lenScores[a] || 0) / 10);
+        var tierB = Math.floor((lenScores[b] || 0) / 10);
+        return tierB - tierA;
       });
-    } else {
-      shuffle(indices);
     }
     domains.push(indices);
   }
