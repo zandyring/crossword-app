@@ -131,10 +131,17 @@ function solve(slots, cells, width) {
       }
     }
     var indices = findMatchingIndices(len, fixed);
-    // Sort by score descending so solver tries common words first
+    // Sort by score descending with jitter — prefer common words but
+    // add randomness within similar scores so solver explores varied paths
     var lenScores = scoresByLen[len];
     if (lenScores) {
-      indices.sort(function(a, b) { return (lenScores[b] || 0) - (lenScores[a] || 0); });
+      indices.sort(function(a, b) {
+        var sa = (lenScores[a] || 0) + Math.random() * 15;
+        var sb = (lenScores[b] || 0) + Math.random() * 15;
+        return sb - sa;
+      });
+    } else {
+      shuffle(indices);
     }
     domains.push(indices);
   }
