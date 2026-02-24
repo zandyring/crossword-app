@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crossword Builder</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="toolbar">
+    <div class="toolbar-group">
+      <label for="grid-size">Size:</label>
+      <select id="grid-size">
+        <option value="5">5&times;5</option>
+        <option value="7">7&times;7</option>
+        <option value="9">9&times;9</option>
+        <option value="11">11&times;11</option>
+        <option value="13">13&times;13</option>
+        <option value="15" selected>15&times;15</option>
+        <option value="17">17&times;17</option>
+        <option value="19">19&times;19</option>
+        <option value="21">21&times;21</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button id="btn-symmetry" class="active" title="Toggle rotational symmetry">Symmetry</button>
+      <button id="btn-mode" title="Toggle between editing black squares and filling letters">Mode: Blocks</button>
+    </div>
+    <div class="toolbar-group">
+      <button id="btn-clear-letters" title="Clear all letters">Clear Letters</button>
+      <button id="btn-clear-grid" title="Clear entire grid">Clear Grid</button>
+    </div>
+    <div class="toolbar-group">
+      <button id="btn-autofill" title="Auto-fill the grid with words">Auto-Fill</button>
+      <button id="btn-cancel-autofill" title="Cancel auto-fill" disabled>Cancel</button>
+      <span id="autofill-status"></span>
+    </div>
+    <div class="toolbar-group">
+      <button id="btn-undo" title="Undo (Ctrl+Z)" disabled>Undo</button>
+      <button id="btn-redo" title="Redo (Ctrl+Y)" disabled>Redo</button>
+    </div>
+    <div class="toolbar-group">
+      <button id="btn-save" title="Save puzzle as JSON">Save JSON</button>
+      <button id="btn-load" title="Load puzzle from JSON">Load JSON</button>
+      <button id="btn-print" title="Export printable version">Print</button>
+      <input type="file" id="file-input" accept=".json" hidden>
+    </div>
+    <div class="toolbar-group">
+      <button id="btn-help" title="Keyboard shortcuts">?</button>
+    </div>
+  </header>
+
+  <main class="main-area">
+    <div class="grid-container">
+      <div id="grid" class="grid"></div>
+      <div id="grid-warnings" class="grid-warnings"></div>
+    </div>
+    <div class="clue-panel" id="clue-panel">
+      <div class="clue-section">
+        <h2>Across</h2>
+        <div id="clues-across" class="clue-list"></div>
+      </div>
+      <div class="clue-section">
+        <h2>Down</h2>
+        <div id="clues-down" class="clue-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="metadata">
+    <label>Title: <input type="text" id="meta-title" placeholder="Untitled"></label>
+    <label>Author: <input type="text" id="meta-author" placeholder="Anonymous"></label>
+  </footer>
+
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Keyboard Shortcuts</h2>
+      <table>
+        <tr><td><kbd>Arrow keys</kbd></td><td>Move between cells</td></tr>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></td><td>Next / previous word</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>Toggle direction (across/down)</td></tr>
+        <tr><td><kbd>Backspace</kbd></td><td>Delete letter and move back</td></tr>
+        <tr><td><kbd>Delete</kbd></td><td>Delete letter in current cell</td></tr>
+        <tr><td><kbd>A-Z</kbd></td><td>Enter letter and advance</td></tr>
+        <tr><td><kbd>Cmd+Z</kbd></td><td>Undo</td></tr>
+        <tr><td><kbd>Cmd+Shift+Z</kbd></td><td>Redo</td></tr>
+        <tr><td><kbd>Escape</kbd></td><td>Deselect / close modal</td></tr>
+      </table>
+      <button id="btn-close-help">Close</button>
+    </div>
+  </div>
+
+  <div id="error-banner" style="display:none;background:#c00;color:white;padding:8px 16px;position:fixed;bottom:0;left:0;right:0;z-index:999;font-size:13px;"></div>
+
+  <script>
+    // Global error handler — shows errors visibly
+    window.onerror = function(msg, url, line) {
+      var banner = document.getElementById('error-banner');
+      banner.style.display = 'block';
+      banner.textContent = 'JS Error: ' + msg + ' (' + url.split('/').pop() + ':' + line + ')';
+      console.error(msg, url, line);
+    };
+  </script>
+  <script src="js/utils.js"></script>
+  <script src="js/numbering.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/clues.js"></script>
+  <script src="js/wordlist.js"></script>
+  <script src="js/autofill.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
