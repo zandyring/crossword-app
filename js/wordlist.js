@@ -6,7 +6,7 @@ var WordList = {
 
   load: function() {
     var self = this;
-    return fetch('data/wordlist.txt').then(function(resp) {
+    return fetch('data/wordlist.txt?v=2').then(function(resp) {
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       return resp.text();
     }).then(function(text) {
