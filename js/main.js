@@ -118,6 +118,10 @@ var App = {
       Export.printHTML(self.puzzle);
     });
 
+    document.getElementById('btn-share').addEventListener('click', function() {
+      Export.sharePuzzle(self.puzzle);
+    });
+
     // Help modal
     document.getElementById('btn-help').addEventListener('click', function() {
       document.getElementById('help-modal').classList.remove('hidden');
