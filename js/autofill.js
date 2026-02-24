@@ -10,6 +10,7 @@ var TIMEOUT = 30000;
 
 // Position index: posIndex[length][position][letter] = Set of word indices
 var wordsByLen = {};   // length -> [words]
+var scoresByLen = {};   // length -> [scores] (parallel to wordsByLen)
 var posIndex = {};     // length -> position -> letter -> Set<wordIndex>
 
 self.onmessage = function(e) {
@@ -17,24 +18,28 @@ self.onmessage = function(e) {
   if (e.data.type === "solve") {
     cancelled = false;
     startTime = Date.now();
-    buildIndex(e.data.words);
+    buildIndex(e.data.words, e.data.scores);
     var result = solve(e.data.slots, e.data.cells, e.data.width);
     self.postMessage({ type: "done", result: result });
   }
 };
 
-function buildIndex(words) {
+function buildIndex(words, scores) {
   wordsByLen = {};
+  scoresByLen = {};
   posIndex = {};
   for (var i = 0; i < words.length; i++) {
     var w = words[i];
+    var sc = scores ? scores[i] : 50;
     var len = w.length;
     if (!wordsByLen[len]) {
       wordsByLen[len] = [];
+      scoresByLen[len] = [];
       posIndex[len] = {};
     }
     var idx = wordsByLen[len].length;
     wordsByLen[len].push(w);
+    scoresByLen[len].push(sc);
     for (var p = 0; p < len; p++) {
       if (!posIndex[len][p]) posIndex[len][p] = {};
       var ch = w[p];
@@ -126,7 +131,11 @@ function solve(slots, cells, width) {
       }
     }
     var indices = findMatchingIndices(len, fixed);
-    shuffle(indices);
+    // Sort by score descending so solver tries common words first
+    var lenScores = scoresByLen[len];
+    if (lenScores) {
+      indices.sort(function(a, b) { return (lenScores[b] || 0) - (lenScores[a] || 0); });
+    }
     domains.push(indices);
   }
 
@@ -373,6 +382,7 @@ function backtrack(slots, cells, domains, crossings, assignment, depth) {
     this.worker.postMessage({
       type: 'solve',
       words: WordList.getWordsArray(),
+      scores: WordList.getScoresArray(),
       slots: workerSlots,
       cells: cellLetters,
       width: puzzle.width
